@@ -13,6 +13,10 @@ import (
 type Cache struct {
     data map[string]string
     sync.Mutex
+
+    // Added this structure in order to store the timestamp corresponding
+    // to each Put operation
+    timestamps map[string]int64
 }
 
 // Create a new cache object and return a pointer to it.
@@ -20,6 +24,7 @@ func NewCache() *Cache {
     var s Cache
 
     s.data = make(map[string]string)
+    s.timestamps = make(map[string]int64)
 
     return &s
 }
@@ -29,7 +34,7 @@ func NewCache() *Cache {
 func (cache *Cache) Get(key string) (value string, timestamp int64) {
     cache.Lock()
     value = cache.data[key]
-    timestamp = 0
+    timestamp = cache.timestamps[key]
     cache.Unlock()
 
     log.Printf("[CACHE] Getting Key '%v' with Value '%v' @ timestamp '%v'\n", key, value, timestamp)
@@ -43,6 +48,7 @@ func (cache *Cache) Put(key string, value string, timestamp int64) {
 
     cache.Lock()
     cache.data[key] = value
+    cache.timestamps[key] = timestamp
     cache.Unlock()
 
     return
@@ -52,6 +58,6 @@ func (cache *Cache) Put(key string, value string, timestamp int64) {
 // except for testing purposes.
 func (cache *Cache) getAll() (data map[string]string, timestamps map[string]int64) {
     data = cache.data
-    timestamps = make(map[string]int64)
+    timestamps = cache.timestamps
     return data, timestamps
 }

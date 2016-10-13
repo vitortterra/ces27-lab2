@@ -193,6 +193,18 @@ func aggregateVotes(votes []*vote) (result string) {
 	/////////////////////////
 	// YOUR CODE GOES HERE //
 	/////////////////////////
-	result = votes[0].value
+	var (
+		latestTimestamp int64
+	)
+
+	latestTimestamp = 0
+	
+	for _, vote := range votes {
+		if vote.timestamp > latestTimestamp {
+			latestTimestamp = vote.timestamp
+			result = vote.value
+		}
+	}
+
 	return
 }
